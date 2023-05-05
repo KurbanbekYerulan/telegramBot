@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return \route('login');
 });
 
 Route::match(['get', 'post'], 'botman', [BotManController::class, 'handle']);
@@ -40,3 +40,4 @@ Route::post('/send-message', [App\Http\Controllers\MessageController::class, 'me
 Route::resource('questions',\App\Http\Controllers\QuestionController::class);
 Route::resource('answers',\App\Http\Controllers\AnswerController::class);
 Route::resource('test',\App\Http\Controllers\TestController::class);
+Route::resource('material',\App\Http\Controllers\MaterialController::class);

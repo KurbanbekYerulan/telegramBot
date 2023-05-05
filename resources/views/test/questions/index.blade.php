@@ -12,7 +12,7 @@
             <div class="row mt-4">
                 <div class="col-sm-6 col-md-3 col-lg-2">
                     <button class="btn btn-success" onclick="window.location='{{ route("questions.create") }}'">
-                        Создать вопрос
+                        Создать
                     </button>
                 </div>
             </div>

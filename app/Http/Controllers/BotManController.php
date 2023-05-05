@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Conversations\HighscoreConversation;
+use App\Conversations\MaterialConversation;
 use App\Conversations\PrivacyConversation;
 use App\Conversations\QuizConversation;
 use App\Conversations\ScheduleConversation;
@@ -83,8 +84,8 @@ class BotManController extends Controller
             $bot->reply('Это бот помощник предподователя');
         })->stopsConversation();
 
-        $botman->hears('/deletedata|deletedata', function (BotMan $bot) {
-            $bot->startConversation(new PrivacyConversation());
+        $botman->hears('/material|material', function (BotMan $bot) {
+            $bot->startConversation(new MaterialConversation());
         })->stopsConversation();
 
         $botman->listen();

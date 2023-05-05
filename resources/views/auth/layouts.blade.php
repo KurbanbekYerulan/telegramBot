@@ -84,6 +84,11 @@
                            href="{{route('test.index')}}">
                             <i class="fas fa-pencil-alt fa-lg"></i> <br><span class="small">Тесты</span></a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-flex flex-column text-center" aria-current="page"
+                           href="{{route('material.index')}}">
+                            <i class="fas fa-book-reader fa-lg"></i> <br><span class="small">Материалы</span></a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">

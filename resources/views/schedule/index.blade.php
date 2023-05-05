@@ -12,7 +12,7 @@
             <div class="row mt-4">
                 <div class="col-sm-6 col-md-3 col-lg-2">
                     <button class="btn btn-success" onclick="window.location='{{ route("schedule.create") }}'">
-                        Новое расписание
+                        Создать
                     </button>
                 </div>
             </div>
@@ -36,15 +36,6 @@
                                     <td>{{$d['group']->name}}</td>
                                     <td>
                                         <div class="row">
-                                            <div class="col-6 col-md-3 col-lg-2">
-                                                <form method="get" action="{{route('schedule.edit',$d['id'])}}">
-                                                    @method('PUT')
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-info btn-sm">
-                                                        <i class="nav-icon fas fa-edit"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
                                             <div class="col-6 col-md-3 col-lg-2">
                                                 <form method="post" action="{{route('schedule.destroy',$d['id'])}}">
                                                     @method('delete')

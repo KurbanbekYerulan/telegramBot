@@ -15,7 +15,14 @@ class Question extends Model
     {
         return $this->hasMany(Answer::class, 'question_id', 'id');
     }
+    protected static function boot()
+    {
+        parent::boot();
 
+        static::deleting(function ($group) {
+            $group->answers()->delete();
+        });
+    }
     public function group()
     {
         return $this->belongsTo(Groups::class, 'group_id', 'id');

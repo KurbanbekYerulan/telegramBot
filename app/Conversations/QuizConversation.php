@@ -53,17 +53,10 @@ class QuizConversation extends Conversation
         );
         $this->bot->typesAndWaits(1);
 
-        return $this->ask($this->chooseTrack(), function (BotManAnswer $answer) {
-
-            if ($answer->isInteractiveMessageReply()) {
-                $selectedOption = $answer->getValue();
-                $selectedTrack = Groups::find($answer->getValue());
-            } else {
-                $selectedTrack = Groups::where('name', $answer->getText())->first();
-            }
-
-            if (!$selectedTrack) {
-                $this->say('Извините, я этого не понял. Пожалуйста, используйте кнопки.');
+        return $this->ask($this->chooseGroup(), function (BotManAnswer $answer) {
+            $selectedTrack = Groups::where('name', $answer->getText())->first();
+            if (empty($selectedTrack)) {
+                $this->say('Извините, я этого не понял. Пожалуйста, напишите правильно.');
                 return $this->selectTrack();
             }
 
@@ -110,18 +103,20 @@ class QuizConversation extends Conversation
     {
         $this->bot->typesAndWaits(1);
         $this->ask($this->createQuestionTemplate($question), function (BotManAnswer $answer) use ($question) {
-            if ($answer->isInteractiveMessageReply()) {
-                $quizAnswer = Answer::find($answer->getValue());
-            } else {
-                if (strcmp($answer->getText(), 'A') == 0) {
-                    $quizAnswer = Answer::where('question_id', $question->id)->get()->first();
-                } elseif (strcmp($answer->getText(), 'B') == 0) {
-                    $quizAnswer = Answer::where('question_id', $question->id)->orderBy('id', 'desc')->get()->first();
+            $isCorrect = false;
+            if (strcmp($answer->getText(), 'A') == 0 || strcmp($answer->getText(), 'a') == 0) {
+                $quizAnswer = Answer::where('question_id', $question->id)->get()->first();
+                if (!empty($quizAnswer)) {
+                    $isCorrect = true;
+                }
+            } elseif (strcmp($answer->getText(), 'B') == 0 || strcmp($answer->getText(), 'b') == 0) {
+                $quizAnswer = Answer::where('question_id', $question->id)->orderBy('id', 'desc')->get()->first();
+                if (!empty($quizAnswer)) {
+                    $isCorrect = true;
                 }
             }
-
-            if (!$quizAnswer) {
-                $this->say('Извините, я этого не понял. Пожалуйста, используйте кнопки.');
+            if (!$isCorrect) {
+                $this->say("Извините, я этого не понял. Пожалуйста, \n Напишите А или В (А первый, В второй вариант).");
                 return $this->checkForNextQuestion();
             }
 
@@ -165,25 +160,25 @@ class QuizConversation extends Conversation
         return $this->bot->startConversation(new HighscoreConversation());
     }
 
-
-    private function chooseTrack()
+    private function chooseGroup()
     {
-        $questionTemplate = BotManQuestion::create("➡️ Пожалуйста, выберите группу");
-
-        foreach ($this->quizGroups->shuffle() as $answer) {
-            $questionTemplate->addButton(Button::create($answer->name)
-                ->value($answer->id));
+        $question = '';
+        foreach ($this->quizGroups as $answer) {
+            $question = $question . "\n" . $answer->name;
         }
+        $questionTemplate = BotManQuestion::create("➡️ Пожалуйста, выберите группу" . $question);
+
         return $questionTemplate;
     }
 
     private function createQuestionTemplate(Question $question)
     {
-        $questionTemplate = BotManQuestion::create("➡️ *Вопрос {$this->currentQuestion} / {$this->questionCount}* \n{$question->text} \n Напишите А или В (А первый, В второй вариант)");
-
+        $questions = '';
         foreach ($question->answers as $answer) {
-            $questionTemplate->addButton(Button::create($answer->text)->value($answer->id)->additionalParameters(['parse_mode' => 'Markdown']));
+            $questions = $questions . "\n" . $answer->text;
         }
+        $questionTemplate = BotManQuestion::create("➡️ *Вопрос {$this->currentQuestion} / {$this->questionCount}* \n{$question->text} \n Напишите А или В (А первый, В второй вариант) \n" . $questions);
+
         return $questionTemplate;
     }
 }

@@ -7,14 +7,26 @@ use App\Http\Responses\ViewResponse;
 use App\Models\Groups;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ScheduleController extends Controller
 {
     public function index()
     {
-        $schedule = Schedule::with('group')->where('user_id', auth()->id())->get();
+        $daysOfWeek = [
+            'Понедельник' => 1,
+            'Вторник' => 2,
+            'Среда' => 3,
+            'Четверг' => 4,
+            'Пятница' => 5,
+            'Суббота' => 6,
+            'Воскресенье' => 7,
+        ];
 
-        return new ViewResponse('schedule.index', ['data' => $schedule]);
+        $schedules = Schedule::with('user')->where('user_id', auth()->id())
+            ->orderBy(DB::raw('FIELD(weekDay, "' . implode('","', array_keys($daysOfWeek)) . '")'))->get();
+
+        return new ViewResponse('schedule.index', ['data' => $schedules]);
     }
 
     public function create()
@@ -30,10 +42,10 @@ class ScheduleController extends Controller
     {
         $newschedule = Schedule::create([
             'weekDay' => $request->weekDay,
-            'time' => $request->timeOt.'-'.$request->timeDo,
+            'time' => $request->timeOt . '-' . $request->timeDo,
             'user_id' => auth()->id(),
             'group_id' => $request->group_id
-            ]);
+        ]);
         $schedule = Schedule::with('group')->where('user_id', auth()->id())->get();
         return new ViewResponse('schedule.index', ['data' => $schedule]);
     }

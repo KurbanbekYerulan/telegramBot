@@ -52,17 +52,12 @@ class TaskConversation extends Conversation
         );
         $this->bot->typesAndWaits(1);
 
-        return $this->ask($this->chooseTrack(), function (BotManAnswer $answer) {
+        return $this->ask($this->chooseGroup(), function (BotManAnswer $answer) {
 
-            if ($answer->isInteractiveMessageReply()) {
-                $selectedOption = $answer->getValue();
-                $selectedTrack = Groups::find($answer->getValue());
-            } else {
-                $selectedTrack = Groups::where('name', $answer->getText())->first();
-            }
+            $selectedTrack = Groups::where('name', $answer->getText())->first();
 
-            if (!$selectedTrack) {
-                $this->say('Извините, я этого не понял. Пожалуйста, используйте кнопки.');
+            if (empty($selectedTrack)) {
+                $this->say('Извините, я этого не понял. Пожалуйста, напишите правильно.');
                 return $this->selectTrack();
             }
 
@@ -75,11 +70,11 @@ class TaskConversation extends Conversation
     private function setTrackQuestions($id)
     {
         $homeworks = Homeworks::where('group_id', $id)->get()->toArray();
-        if (empty($homeworks)){
+        if (empty($homeworks)) {
             $this->say('Нет задач', [
                 'parse_mode' => 'Markdown',
             ]);
-        }else{
+        } else {
             foreach ($homeworks as $homework) {
                 $this->say($homework['description'], [
                     'parse_mode' => 'Markdown',
@@ -88,14 +83,15 @@ class TaskConversation extends Conversation
         }
     }
 
-    private function chooseTrack()
+    private function chooseGroup()
     {
-        $questionTemplate = BotManQuestion::create("➡️ Пожалуйста, выберите группу");
-
-        foreach ($this->quizGroups->shuffle() as $answer) {
-            $questionTemplate->addButton(Button::create($answer->name)
-                ->value($answer->id));
+        $question = '';
+        foreach ($this->quizGroups as $answer) {
+            $question = $question . "\n" . $answer->name;
         }
+        $questionTemplate = BotManQuestion::create("➡️ Пожалуйста, выберите группу" . $question);
+
         return $questionTemplate;
     }
+
 }

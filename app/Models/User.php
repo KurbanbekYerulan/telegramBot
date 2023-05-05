@@ -34,8 +34,26 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function schedule(){
-        return $this->hasMany(Schedule::class,'user_id','id');
+    public function schedule()
+    {
+        return $this->hasMany(Schedule::class, 'user_id', 'id');
     }
 
+    public function material()
+    {
+        return $this->hasMany(Material::class, 'user_id', 'id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($group) {
+            $group->schedule()->delete();
+        });
+
+        static::deleting(function ($group) {
+            $group->material()->delete();
+        });
+    }
 }
